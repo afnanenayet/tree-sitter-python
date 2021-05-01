@@ -619,21 +619,22 @@ module.exports = grammar({
     comparison_operator: $ => prec.left(PREC.compare, seq(
       $.primary_expression,
       repeat1(seq(
-        choice(
-          '<',
-          '<=',
-          '==',
-          '!=',
-          '>=',
-          '>',
-          '<>',
-          'in',
-          seq('not', 'in'),
-          'is',
-          seq('is', 'not')
-        ),
-        $.primary_expression
-      ))
+        field('operators',
+          choice(
+            '<',
+            '<=',
+            '==',
+            '!=',
+            '>=',
+            '>',
+            '<>',
+            'in',
+            seq('not', 'in'),
+            'is',
+            seq('is', 'not')
+          )),
+          $.primary_expression
+        ))
     )),
 
     lambda: $ => prec(PREC.lambda, seq(
@@ -943,7 +944,7 @@ module.exports = grammar({
       ))
     },
 
-    identifier: $ => /[a-zA-Zα-ωΑ-Ω_][a-zA-Zα-ωΑ-Ω_0-9]*/,
+    identifier: $ => /[_\p{XID_Start}][_\p{XID_Continue}]*/,
 
     keyword_identifier: $ => prec(-3, alias(
       choice(
