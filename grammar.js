@@ -190,9 +190,14 @@ module.exports = grammar({
     ),
 
     named_expression: $ => seq(
-      field('name', $.identifier),
+      field('name', $._named_expresssion_lhs),
       ':=',
       field('value', $.expression)
+    ),
+
+    _named_expresssion_lhs: $ => choice(
+      $.identifier,
+      alias('match', $.identifier), // ambiguity with match statement: only ":" at end of line decides if "match" keyword
     ),
 
     return_statement: $ => seq(
@@ -265,7 +270,12 @@ module.exports = grammar({
 
     case_clause: $ => seq(
       'case',
-      commaSep1(field('pattern', choice($.expression, $.list_splat_pattern))),
+      commaSep1(
+        field(
+          'pattern',
+          alias(choice($.expression, $.list_splat_pattern), $.case_pattern),
+        )
+      ),
       optional(','),
       optional(field('guard', $.if_clause)),
       ':',
@@ -494,7 +504,7 @@ module.exports = grammar({
 
     pattern: $ => choice(
       $.identifier,
-      alias("match", $.identifier), // ambiguity with match statement: only ":" at end of line decides if "match" keyword
+      alias('match', $.identifier), // ambiguity with match statement: only ":" at end of line decides if "match" keyword
       $.keyword_identifier,
       $.subscript,
       $.attribute,
@@ -544,7 +554,7 @@ module.exports = grammar({
     as_pattern: $ => prec.left(seq(
       $.expression,
       'as',
-      field('alias', $.expression)
+      field('alias', alias($.expression, $.as_pattern_target))
     )),
 
     // Expressions
