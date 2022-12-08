@@ -374,11 +374,11 @@ module.exports = grammar({
     ),
 
     with_clause: $ => choice(
-      commaSep1($.with_item),
-      seq('(', commaSep1($.with_item), ')')
+      seq(commaSep1($.with_item), optional(',')),
+      seq('(', commaSep1($.with_item), optional(','), ')')
     ),
 
-    with_item: $ => prec.dynamic(-1, seq(
+    with_item: $ => prec.dynamic(1, seq(
       field('value', $.expression),
     )),
 
